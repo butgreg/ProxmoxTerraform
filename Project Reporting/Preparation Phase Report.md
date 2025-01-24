@@ -1,11 +1,14 @@
 **Proxmox API Key Setup and Configuration**
 
 ---
+
 ## **Deliverables**
 
 ### **Deliverable: Ubuntu Template Configuration**
+
 1. **VM ID**: `9000`
 2. **Configuration Commands**:
+
    ```bash
    virt-customize -a /mnt/pve/RaidArray/template/iso/focal-server-cloudimg-amd64.img --install openssh-server
    qm create 9000 --name "UbuntuTerraformTest" --memory 2048 --cores 2 --net0 virtio,bridge=vmbr0
@@ -17,10 +20,10 @@
    qm template 9000
    ```
 
-
 ### **Deliverable: Proxmox API Key Setup**
 
 **Steps to Create an API Key in Proxmox:**
+
 1. Log in to the Proxmox Web Interface.
 2. Navigate to: **Datacenter > Permissions > API Tokens**.
 3. Create a token for the `root@pam` user (or a custom user if applicable):
@@ -31,6 +34,7 @@
    - Secret: `<token_secret>`
 
 **Example API Token Details:**
+
 - **User**: `root@pam`
 - **Token Name**: `terraform_user`
 - **Full Token ID**: `root@pam!terraform_user`
@@ -40,6 +44,7 @@
 ### **Deliverable: API Access Configuration Script**
 
 **Script to Export API Token Credentials Securely:**
+
 Create a script to store and load credentials as environment variables for Terraform:
 
 ```bash
@@ -59,6 +64,7 @@ fi
 ```
 
 **Usage:**
+
 1. Replace `<API_Token_Secret>` and `<Proxmox_Host_IP>` with your Proxmox token secret and IP address.
 2. Save this script as `proxmox_api_setup.sh`.
 3. Make it executable:
@@ -75,6 +81,7 @@ fi
 ### **Deliverable: Verification of API Configuration**
 
 **Terraform Configuration to Verify API Access:**
+
 Use the following Terraform configuration to test connectivity with the Proxmox API:
 
 ```hcl
@@ -86,8 +93,8 @@ provider "proxmox" {
 }
 
 resource "proxmox_vm_qemu" "test_vm" {
-  count    = 0 # This ensures no VM is created; the purpose is to verify connectivity.
-  name     = "api-verification"
+  count       = 0 # This ensures no VM is created; the purpose is to verify connectivity.
+  name        = "api-verification"
   target_node = "<Proxmox_Node_Name>"
   clone {
     vm_id = 9000 # Replace with a valid template ID.
@@ -96,6 +103,7 @@ resource "proxmox_vm_qemu" "test_vm" {
 ```
 
 **Steps to Test:**
+
 1. Initialize the Terraform configuration:
    ```bash
    terraform init
@@ -104,11 +112,12 @@ resource "proxmox_vm_qemu" "test_vm" {
    ```bash
    terraform plan
    ```
-   - Expected Output: No errors related to API access.
+   - **Expected Output**: No errors related to API access.
 
 ---
 
 ### **Expected Outcomes**
+
 1. API Token and credentials securely configured.
 2. Terraform able to connect to Proxmox without authentication errors.
 3. Verified connectivity with the Proxmox API.
