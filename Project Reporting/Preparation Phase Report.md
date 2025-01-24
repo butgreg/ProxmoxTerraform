@@ -1,124 +1,208 @@
-**Proxmox API Key Setup and Configuration**
+# Proxmox Terraform Preparation Phase Report
 
 ---
 
-## **Deliverables**
+## **Day 1: Install and Configure Terraform**
 
-### **Deliverable: Ubuntu Template Configuration**
+### **Timeline:**
+- **Started:** Evening, January 20, 2025
 
-1. **VM ID**: `9000`
-2. **Configuration Commands**:
+### **Tasks Completed:**
+- Installed Terraform v1.10.4 on the management VM (Ubuntu) within the Proxmox homelab.
+- Verified the installation using:
+  ```bash
+  terraform --version
+  ```
+  - Output: Successful.
+- Created the project directory structure:
+  ```bash
+  mkdir ~/ProxmoxTerraform
+  cd ~/ProxmoxTerraform
+  ```
+  - Structure:
+    - **main.tf**: Core Terraform configuration.
+    - **variables.tf**: Input variables.
+    - **outputs.tf**: Outputs for Terraform.
+    - Subdirectories for modules and configurations.
 
-   ```bash
-   virt-customize -a /mnt/pve/RaidArray/template/iso/focal-server-cloudimg-amd64.img --install openssh-server
-   qm create 9000 --name "UbuntuTerraformTest" --memory 2048 --cores 2 --net0 virtio,bridge=vmbr0
-   qm importdisk 9000 focal-server-cloudimg-amd64.img RaidArray
-   qm set 9000 --scsihw virtio-scsi-pci --scsi0 RaidArray:9000/vm-9000-disk-0.raw
-   qm set 9000 --boot c --bootdisk scsi0
-   qm set 9000 --ide2 RaidArray:cloudinit
-   qm set 9000 --agent 1
-   qm template 9000
-   ```
+### **Wins:**
+- Terraform was fully operational.
+- Project directory was set up cleanly.
 
-### **Deliverable: Proxmox API Key Setup**
-
-**Steps to Create an API Key in Proxmox:**
-
-1. Log in to the Proxmox Web Interface.
-2. Navigate to: **Datacenter > Permissions > API Tokens**.
-3. Create a token for the `root@pam` user (or a custom user if applicable):
-   - **Token Name**: `terraform_user` (example).
-   - **Permissions**: Assign **VM.Admin** role.
-4. Save the API token and secret securely:
-   - API Token: `<username>@<realm>!<token_id>`
-   - Secret: `<token_secret>`
-
-**Example API Token Details:**
-
-- **User**: `root@pam`
-- **Token Name**: `terraform_user`
-- **Full Token ID**: `root@pam!terraform_user`
+### **Challenges:**
+- None noted.
 
 ---
 
-### **Deliverable: API Access Configuration Script**
+## **Day 2: Configure Proxmox Provider and Authentication**
 
-**Script to Export API Token Credentials Securely:**
+### **Timeline:**
+- **Started:** January 21, 2025
 
-Create a script to store and load credentials as environment variables for Terraform:
+### **Tasks Completed:**
+1. Installed the Proxmox Terraform provider:
+   - Added the provider block in `main.tf`:
+     ```hcl
+     terraform {
+       required_providers {
+         proxmox = {
+           source  = "Telmate/proxmox"
+           version = "3.0.1-rc6"
+         }
+       }
+     }
+     ```
+   - Initialized Terraform:
+     ```bash
+     terraform init
+     ```
+   - Output: Provider downloaded successfully.
 
-```bash
-#!/bin/bash
-# Export Proxmox API Credentials
-export TF_VAR_proxmox_user="root@pam"
-export TF_VAR_proxmox_password="<API_Token_Secret>"
-export TF_VAR_proxmox_api_url="https://<Proxmox_Host_IP>:8006/api2/json"
+2. Set up API access for Proxmox:
+   - Created an API token in Proxmox with VM.Admin permissions.
+   - Stored credentials securely using environment variables:
+     ```bash
+     export TF_VAR_proxmox_user="root@pam"
+     export TF_VAR_proxmox_password="<API_Token_Secret>"
+     ```
 
-# Confirm the credentials are set
-if [[ -z "$TF_VAR_proxmox_user" || -z "$TF_VAR_proxmox_password" || -z "$TF_VAR_proxmox_api_url" ]]; then
-  echo "Error: API credentials are not set properly."
-  exit 1
-else
-  echo "Proxmox API credentials exported successfully."
-fi
-```
-
-**Usage:**
-
-1. Replace `<API_Token_Secret>` and `<Proxmox_Host_IP>` with your Proxmox token secret and IP address.
-2. Save this script as `proxmox_api_setup.sh`.
-3. Make it executable:
-   ```bash
-   chmod +x proxmox_api_setup.sh
-   ```
-4. Run the script:
-   ```bash
-   ./proxmox_api_setup.sh
-   ```
-
----
-
-### **Deliverable: Verification of API Configuration**
-
-**Terraform Configuration to Verify API Access:**
-
-Use the following Terraform configuration to test connectivity with the Proxmox API:
-
-```hcl
-provider "proxmox" {
-  pm_api_url      = var.proxmox_api_url
-  pm_user         = var.proxmox_user
-  pm_password     = var.proxmox_password
-  pm_tls_insecure = true
-}
-
-resource "proxmox_vm_qemu" "test_vm" {
-  count       = 0 # This ensures no VM is created; the purpose is to verify connectivity.
-  name        = "api-verification"
-  target_node = "<Proxmox_Node_Name>"
-  clone {
-    vm_id = 9000 # Replace with a valid template ID.
-  }
-}
-```
-
-**Steps to Test:**
-
-1. Initialize the Terraform configuration:
-   ```bash
-   terraform init
-   ```
-2. Run a `terraform plan` to validate API connectivity:
+3. Verified the Proxmox provider configuration:
    ```bash
    terraform plan
    ```
-   - **Expected Output**: No errors related to API access.
+   - Output: No errors.
+
+### **Wins:**
+- Provider was successfully initialized and verified.
+- API access was configured securely.
+
+### **Challenges:**
+- None noted.
 
 ---
 
-### **Expected Outcomes**
+## **Day 3: Base Images Preparation**
 
-1. API Token and credentials securely configured.
-2. Terraform able to connect to Proxmox without authentication errors.
-3. Verified connectivity with the Proxmox API.
+### **Timeline:**
+- **Started:** January 21, 2025, 18:47 (Ubuntu)
+- **Completed:** January 22, 2025, 09:24 (Windows)
+
+### **Ubuntu VM (18:47 - 19:07):**
+- Created VM:
+  ```bash
+  qm importdisk 9000 /mnt/pve/RaidArray/template/iso/focal-server-cloudimg-amd64.raw RaidArray
+  qm set 9000 --scsihw virtio-scsi-pci --scsi0 RaidArray:9000/vm-9000-disk-0.raw
+  qm set 9000 --ide2 RaidArray:cloudinit
+  qm set 9000 --boot order=scsi0
+  qm template 9000
+  ```
+- Successfully converted to a template.
+- **Issue:** Forgot to preload SSH. Will document this as a lesson learned.
+
+### **Windows VM (19:30 - 09:24):**
+- Created VM using a 3-year-old ISO:
+  - Delays due to updates and a buggy cumulative update from January 17, 2025.
+- Struggled with Sysprep:
+  - **Error:** "Audit mode cannot be turned on if reserved storage is in use."
+  - **Fix:**
+    1. Disabling reserved storage in the registry:
+       ```bash
+       regedit > HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ReserveManager
+       Set ShippedWithReserves = 0
+       ```
+    2. Cleaning updates:
+       ```bash
+       net stop wuauserv
+       net stop bits
+       del "%WINDIR%\SoftwareDistribution" /f /s /q
+       net start wuauserv
+       net start bits
+       ```
+    3. Running Sysprep:
+       ```bash
+       C:\Windows\System32\sysprep\sysprep.exe /generalize /oobe /shutdown
+       ```
+  - Converted to template at 08:53.
+- Cloned a new VM (09:24):
+  - Verified RDP and installed VirtIO drivers.
+
+### **Wins:**
+- Ubuntu and Windows templates were created successfully.
+- RDP was verified on cloned Windows VM.
+
+### **Challenges:**
+- Struggled with Windows updates for hours.
+- Buggy January 17, 2025, update caused significant delays.
+
+---
+
+## **Day 4: Lightweight LXC Templates**
+
+### **Summary:**
+Day 4 tasks focused on identifying, downloading, and optimizing lightweight LXC container templates for deployment. Templates for Debian 11, Alpine 3.18, and Ubuntu 20.04 were created, configured, and converted into templates.
+
+### **Timeline:**
+
+#### **Template Downloads:**
+- Downloaded base LXC templates to `RaidArray` storage:
+  ```bash
+  pveam download RaidArray debian-11-standard_11.7-1_amd64.tar.zst
+  pveam download RaidArray alpine-3.18-default_20230607_amd64.tar.xz
+  pveam download RaidArray ubuntu-20.04-standard_20.04-1_amd64.tar.gz
+  ```
+
+#### **Container Creation:**
+- **Debian:**
+  ```bash
+  pct create 9200 RaidArray:vztmpl/debian-11-standard_11.7-1_amd64.tar.zst --rootfs RaidArray:4 --memory 512 --cores 1 --net0 name=eth0,bridge=vmbr0,ip=dhcp
+  ```
+- **Alpine:**
+  ```bash
+  pct create 9201 RaidArray:vztmpl/alpine-3.18-default_20230607_amd64.tar.xz --rootfs RaidArray:4 --memory 512 --cores 1 --net0 name=eth0,bridge=vmbr0,ip=dhcp
+  ```
+- **Ubuntu:**
+  ```bash
+  pct create 9202 RaidArray:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz --rootfs RaidArray:4 --memory 512 --cores 1 --net0 name=eth0,bridge=vmbr0,ip=dhcp
+  ```
+
+#### **Container Updates and Optimization:**
+
+- **Debian (9200):**
+  ```bash
+  pct exec 9200 -- apt update && apt upgrade -y
+  pct exec 9200 -- apt install -y openssh-server net-tools iproute2 nano vim apt-transport-https ca-certificates gnupg htop iotop ufw git zip unzip tar gzip curl wget dnsutils
+  pct stop 9200
+  pct template 9200
+  ```
+
+- **Alpine (9201):**
+  ```bash
+  pct exec 9201 -- apk update && apk add openssh iproute2 net-tools nano vim htop iptables git zip unzip tar gzip curl wget bind-tools
+  pct stop 9201
+  pct template 9201
+  ```
+
+- **Ubuntu (9202):**
+  ```bash
+  pct exec 9202 -- apt update && apt upgrade -y
+  pct exec 9202 -- apt install -y openssh-server net-tools iproute2 nano vim apt-transport-https ca-certificates gnupg htop iotop ufw git zip unzip tar gzip curl wget dnsutils
+  pct stop 9202
+  pct template 9202
+  ```
+
+### **Wins:**
+- Successfully identified and downloaded LXC templates for Debian, Alpine, and Ubuntu.
+- Configured and optimized containers with essential tools for various use cases.
+- Converted all containers to templates stored on `RaidArray` for future deployments.
+
+### **Challenges:**
+- Network settings for container DHCP required additional troubleshooting.
+- Timed container updates for automation reporting delayed the timeline slightly.
+
+---
+
+### **Next Steps:**
+1. Integrate LXC templates into Terraform automation workflows.
+2. Research enhancements for containerized services, including pre-configured monitoring and security tools.
+3. Document additional template testing results for deployment consistency.
 
