@@ -14,24 +14,24 @@ provider "proxmox" {
 }
 
 resource "proxmox_vm_qemu" "test" {
-  name         = "proxmox-connectivity-test"
-  target_node  = "pve" # Replace with your Proxmox node name
-  vmid         = 9001  # Unique VM ID
-  clone        = 9000  # Template VM ID to clone
+  name         = "${var.vm_name}-${var.vm_id}"
+  target_node  = "pve"
+  vmid         = var.vm_id
+  clone        = 9000 # Template VM ID
 
   disk {
     storage = "RaidArray"
-    size    = 4 # Disk size in GB
+    size    = var.vm_storage
     slot    = "scsi0"
     type    = "disk"
   }
 
   network {
-    id    = 0
+    id     = 0
     model  = "virtio"
     bridge = "vmbr0"
   }
 
-  memory       = 1024 # Memory in MB
-  cores        = 1    # Number of CPU cores
+  memory = var.vm_memory
+  cores  = var.vm_cores
 }

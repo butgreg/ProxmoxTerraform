@@ -18,3 +18,32 @@ variable "ssh_public_key" {
     ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCbYmgNMlEs6RVe29+G3KoYMyOrjd09h5rPZ7/DeAXR4F6w3e1vtZgBko30W8RWtkoHrqDGZPGFvsmQpm/r5wzbe+/PJUPwyD8gtreerWuG+EPec27DOtrtGzDcXDE9NcyvpP4uz+VoLQN40zKeWZyuUsItZuTa0jB3nymgpnvsH4W4QpR5nFkTSQJcpVPRx/Hidv2S3LTOt2OIuvqI73PeoJbuRMK970c6VoV/+4GojeKVjLVbjhdDFPQm242kQCZdb4SaPKSfO8jdv/vy8ICm9QbWZxjK1rrqGw0Cjh8QvMGQ37ilvGk9+T/SrYfycZ5qq3LwFoArLVRdpOMHRaxFLe58JULSM7W2id60OLCNnYeXTENbEQY5BO9sAT5Op/swzxhBk1Zwn61tiRYO9dRG0oTWLxltQh7yhT27YEnkfCX8NdEnEasFSvZKh9QrEVQa+vu09AGW41OmgnmTGCFIoaFBMkDFDouKV0QogW0OzqQxUGp/PaVGey06s77y5p+lyxlh8dqNfKszWAI0PG4wV2pFfHOtEH8+KiGcwXywtJrg2VCxB87E9PLXPvnzb0tHzlqQOKqUtm7TqFTdaXK+WqKPFHqjEHTLmQMHoElwPP/BBtsJwZXIYuNwR5CAqsbhAWmMLq/9jUUdQTcGdWB+J3kArKCEjlLKYiK0mLM97Q== terraform@pam
     EOT
 }
+variable "vm_name" {
+  description = "Name of the virtual machine"
+  type        = string
+}
+variable "vm_memory" {
+  description = "Memory allocation for the VM in MB"
+  type        = number
+  default     = 1024
+}
+variable "vm_cores" {
+  description = "Number of CPU cores for the VM"
+  type        = number
+  default     = 1
+}
+variable "vm_storage" {
+  description = "Disk size for the VM in GB"
+  type        = number
+  default     = 4
+}
+variable "vm_id" {
+  description = "Unique VM ID"
+  type        = number
+}
+
+
+
+
+
+
