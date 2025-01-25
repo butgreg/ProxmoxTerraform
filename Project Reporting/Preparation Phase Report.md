@@ -62,7 +62,7 @@
    - Created an API token in Proxmox with VM.Admin permissions.
    - Stored credentials securely using environment variables:
      ```bash
-     export TF_VAR_proxmox_user="root@pam"
+     export TF_VAR_proxmox_user="<token_id>>"
      export TF_VAR_proxmox_password="<API_Token_Secret>"
      ```
 

@@ -45,7 +45,7 @@ Create a script to store and load credentials as environment variables for Terra
 ```bash
 #!/bin/bash
 # Export Proxmox API Credentials
-export TF_VAR_proxmox_user="root@pam"
+export TF_VAR_proxmox_user="terraform@pam"
 export TF_VAR_proxmox_password="<API_Token_Secret>"
 export TF_VAR_proxmox_api_url="https://<Proxmox_Host_IP>:8006/api2/json"
 

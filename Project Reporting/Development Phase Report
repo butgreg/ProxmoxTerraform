@@ -1,0 +1,96 @@
+Here is your **Development Day 1 Report** formatted according to the structure provided in the attachments:
+
+---
+
+# **Development Day 1 Report**
+
+## **Summary**
+
+Development Day 1 focused on configuring the Terraform Proxmox provider and establishing token-based authentication. The setup was validated through functional tests to confirm seamless interaction between Terraform and Proxmox.
+
+---
+
+## **Details**
+
+### **Initial Issue**
+- The original provider block in `main.tf` used user credentials instead of the API token, resulting in authentication failures (`401 errors`) during `terraform plan`.
+
+### **Resolution**
+- Updated the provider configuration to include the appropriate API token-based authentication parameters:
+  ```hcl
+  provider "proxmox" {
+    pm_api_url         = "https://192.168.0.175:8006/api2/json"
+    pm_api_token_id    = var.proxmox_user
+    pm_api_token_secret = var.proxmox_password
+    pm_tls_insecure    = true
+  }
+  ```
+- Verified API connectivity using:
+  ```bash
+  curl -k -X GET "https://192.168.0.175:8006/api2/json/nodes" \
+    -H "Authorization: PVEAPIToken=terraform@pam!new_token_id=<API_Token_Secret>"
+  ```
+- Initialized Terraform and confirmed successful validation using:
+  ```bash
+  terraform init
+  terraform plan
+  ```
+
+---
+
+## **Final Configuration**
+
+The revised `main.tf` configuration includes:
+```hcl
+terraform {
+  required_providers {
+    proxmox = {
+      source  = "telmate/proxmox"
+      version = "3.0.1-rc6"
+    }
+  }
+}
+
+provider "proxmox" {
+  pm_api_url         = "https://192.168.0.175:8006/api2/json"
+  pm_api_token_id    = var.proxmox_user
+  pm_api_token_secret = var.proxmox_password
+  pm_tls_insecure    = true
+}
+
+resource "proxmox_vm_qemu" "test" {
+  name         = "proxmox-connectivity-test"
+  target_node  = "pve"
+  vmid         = 9001
+  clone        = 9000
+
+  disk {
+    storage = "RaidArray"
+    size    = 4
+    slot    = "scsi0"
+    type    = "disk"
+  }
+
+  network {
+    id     = 0
+    model  = "virtio"
+    bridge = "vmbr0"
+  }
+
+  memory = 1024
+  cores  = 1
+}
+```
+
+---
+
+## **Outcome**
+- Successfully authenticated Terraform with the Proxmox API using token-based credentials.
+- Executed `terraform plan` without errors, confirming functional integration.
+
+---
+
+## **Next Steps**
+1. Extend Terraform configurations for deploying multiple Proxmox resources.
+2. Automate VM provisioning workflows using validated modules.
+
