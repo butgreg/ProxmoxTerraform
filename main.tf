@@ -7,31 +7,45 @@ terraform {
   }
 }
 provider "proxmox" {
-  pm_api_url      = "https://192.168.0.175:8006/api2/json"
+  pm_api_url      = "https://${var.proxmox_ip}:8006/api2/json"
   pm_api_token_id         = var.proxmox_user
   pm_api_token_secret     = var.proxmox_password
+  pm_timeout          = 300 # Timeout in seconds
   pm_tls_insecure = true
 }
 
-resource "proxmox_vm_qemu" "test" {
-  name         = "${var.vm_name}-${var.vm_id}"
-  target_node  = "pve"
-  vmid         = var.vm_id
-  clone        = 9000 # Template VM ID
-
-  disk {
-    storage = "RaidArray"
-    size    = var.vm_storage
-    slot    = "scsi0"
-    type    = "disk"
+module "vm" {
+  source            = "./modules/vm"
+  providers = {
+    proxmox = proxmox
   }
+  vm_name           = var.vm_name
+  proxmox_node      = var.proxmox_node
+  vm_id             = var.vm_id
+  vm_template_id    = var.vm_template_id
+  vm_storage_pool   = var.vm_storage_pool
+  vm_storage        = var.vm_storage
+  vm_disk_type      = var.vm_disk_type
+  vm_network_bridge = var.vm_network_bridge
+  vm_memory         = var.vm_memory
+  vm_cores          = var.vm_cores
+  ssh_public_key    = var.ssh_public_key
+  proxmox_ip       = var.proxmox_ip 
+}
 
-  network {
-    id     = 0
-    model  = "virtio"
-    bridge = "vmbr0"
+module "lxc_container" {
+  source                = "./modules/lxc"
+  providers = {
+    proxmox = proxmox
   }
-
-  memory = var.vm_memory
-  cores  = var.vm_cores
+  container_id          = var.container_id
+  proxmox_node          = var.proxmox_node
+  container_name        = "nginx-container"
+  container_template_id = var.container_template_id
+  container_storage     = "RaidArray"
+  container_memory      = 512
+  container_cores       = 1
+  container_network_bridge = "vmbr0"
+  container_ip          = "192.168.1.100"
+  ssh_public_key        = var.ssh_public_key 
 }

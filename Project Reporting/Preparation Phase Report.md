@@ -90,7 +90,7 @@
 ### **Ubuntu VM (18:47 - 19:07):**
 - Created VM:
   ```bash
-  qm importdisk 9000 /mnt/pve/RaidArray/template/iso/focal-server-cloudimg-amd64.raw RaidArray
+  qm importdisk 9000 /mnt/pve/RaidArray/template/iso/focal-server-cloudimg-amd64.img RaidArray
   qm set 9000 --scsihw virtio-scsi-pci --scsi0 RaidArray:9000/vm-9000-disk-0.raw
   qm set 9000 --ide2 RaidArray:cloudinit
   qm set 9000 --boot order=scsi0
