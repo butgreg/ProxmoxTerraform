@@ -6,3 +6,6 @@ images/
 terraform.tfvars
 .terraform/providers/registry.terraform.io/telmate/proxmox/3.0.1-rc6/linux_amd64/terraform-provider-proxmox_v3.0.1-rc6
 .terraform/providers/registry.terraform.io/telmate/proxmox/3.0.1-rc6/linux_amd64/terraform-provider-proxmox_v3.0.1-rc6
+.terraform.tfstate.lock.info
+terraform.tfstate
+terraform.tfstate.backup
