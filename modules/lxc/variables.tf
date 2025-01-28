@@ -1,26 +1,45 @@
-variable "container_name" {
-  description = "Hostname of the container"
+variable "proxmox_node" {
+  description = "Name of the Proxmox node"
   type        = string
+  default     = "pve"
+}
+
+variable "container_name" {
+  description = "Name of the container"
+  type        = string
+  default     = ""
 }
 
 variable "container_id" {
-  description = "Unique container ID"
-  type        = number  
+  description = "Unique ID for the LXC container"
+  type        = number
 }
 
 variable "container_template_id" {
-  description = "ID of the LXC template to use"
-  type        = string
+  description = "Template ID for the container"
+  type        = number
+}
+
+variable "container_full_clone" {
+  description = "Whether to create a full clone of the template"
+  type        = bool
+  default     = true
 }
 
 variable "container_storage" {
-  description = "Proxmox storage location for the container"
+  description = "Storage pool for the container"
   type        = string
   default     = "RaidArray"
 }
 
+variable "container_rootfs_size" {
+  description = "Root filesystem size (in GB)"
+  type        = string
+  default     = "10G"
+}
+
 variable "container_memory" {
-  description = "Memory allocation for the container in MB"
+  description = "Memory allocation for the container (in MB)"
   type        = number
   default     = 512
 }
@@ -32,23 +51,13 @@ variable "container_cores" {
 }
 
 variable "container_network_bridge" {
-  description = "Bridge to attach the container to"
+  description = "Network bridge for the container"
   type        = string
   default     = "vmbr0"
 }
 
 variable "container_ip" {
-  description = "Static IP address for the container"
+  description = "Static IP for the container (leave blank for DHCP)"
   type        = string
-  default     = null
+  default     = ""
 }
-
-variable "ssh_public_key" {
-  description = "SSH public key for accessing the container"
-  type        = string
-}
-
-variable "proxmox_node" {
-  description = "Proxmox node to deploy the container on"
-  type        = string
-  }

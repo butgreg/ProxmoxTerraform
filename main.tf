@@ -25,12 +25,10 @@ module "vm" {
   vm_template_id    = var.vm_template_id
   vm_storage_pool   = var.vm_storage_pool
   vm_storage        = var.vm_storage
-  vm_disk_type      = var.vm_disk_type
   vm_network_bridge = var.vm_network_bridge
   vm_memory         = var.vm_memory
   vm_cores          = var.vm_cores
   ssh_public_key    = var.ssh_public_key
-  proxmox_ip       = var.proxmox_ip 
 }
 
 module "lxc_container" {
@@ -47,5 +45,4 @@ module "lxc_container" {
   container_cores       = 1
   container_network_bridge = "vmbr0"
   container_ip          = "192.168.1.100"
-  ssh_public_key        = var.ssh_public_key 
 }

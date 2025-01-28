@@ -8,24 +8,19 @@ terraform {
 }
 
 resource "proxmox_vm_qemu" "vm" {
-  name         = var.vm_name
-  target_node  = var.proxmox_node
+  name         = var.vm_name != "" ? var.vm_name : "vm-${var.vm_id}"
   vmid         = var.vm_id
   clone_id     = var.vm_template_id
-  full_clone   = true
-  ciuser      = "test"
-  cipassword =  "test"
+  full_clone   = var.vm_full_clone
+  target_node  = var.proxmox_node
 
-  # Main Disk
   disk {
     storage = var.vm_storage_pool
-    size    = var.vm_storage
-    passthrough = "true"
+    size    = var.vm_disk_size
     slot    = "scsi0"
     type    = "disk"
   }
 
-  # Cloud-Init Disk
   disk {
     storage = var.vm_storage_pool
     type    = "cloudinit"
@@ -33,35 +28,20 @@ resource "proxmox_vm_qemu" "vm" {
     size    = 1
   }
 
-  # Cloud-Init Customization
   cicustom = "user=RaidArray:snippets/user-data.yaml"
 
-  # Local-Exec Provisioner to Resize Disk
-  provisioner "local-exec" {
-    command = <<EOT
-      ssh -o StrictHostKeyChecking=no root@${var.proxmox_ip} \
-        "qemu-img resize -f raw /mnt/pve/${var.vm_storage_pool}/images/${var.vm_id}/vm-${var.vm_id}-disk-0.raw ${var.vm_storage}G"
-    EOT
-    on_failure = continue
-  }
-
-  # Network Configuration
   network {
     id     = 0
     model  = "virtio"
     bridge = var.vm_network_bridge
   }
-  ipconfig0 = "dhcp"
 
-  # Optional SSH Keys
-  sshkeys = var.ssh_public_key != null ? var.ssh_public_key : null
+  sshkeys = var.ssh_public_key
 
-  # VM Resources
   memory = var.vm_memory
   cores  = var.vm_cores
 
-  # Lifecycle Configuration
   lifecycle {
-    ignore_changes = [disk]
+    ignore_changes = [disk, network]
   }
 }

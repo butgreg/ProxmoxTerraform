@@ -1,50 +1,68 @@
-variable "proxmox_ip" {
-  description = "IP address of the Proxmox server"
-  type        = string
-}
 variable "proxmox_node" {
-    description = "Name of the proxmox node"
-    type        = string
-}
-variable "vm_name" {
-    description = "Name of the new virtual machine"
-    type        = string
-}
-variable "vm_id" {
-    description = "Unique VM ID"
-    type        = number
-}
-variable "vm_template_id" {
-    description = "ID of the template to clone"
-    type        = number
-}
-variable "vm_storage_pool" {
-    description = "Proxmox storage location for the VM"
-    default = "RaidArray" 
-    }
-variable "vm_storage" {
-    description = "size of the storage in GB"
-    default = 10
-    }
-variable "vm_disk_type" {
-    description = "Disk type for the VM"
-    default = "scsi" 
-    }
-variable "vm_network_bridge" {
-    description = "assigned network bridge"
-    default = "vmbr0" 
-}
-variable "vm_memory" {
-    description = "value of the memory allocation in MB"
-    default = 1024 
-}
-variable "vm_cores" {
-    description = "number of CPU cores"
-    default = 2 
-}
-variable "ssh_public_key" {
-  description = "SSH public key for accessing the VM"
+  description = "Name of the Proxmox node"
   type        = string
-  default     = null
+  default     = "pve"
 }
 
+variable "vm_name" {
+  description = "Name of the VM"
+  type        = string
+  default     = ""
+}
+
+variable "vm_id" {
+  description = "Unique VM ID"
+  type        = number
+}
+
+variable "vm_template_id" {
+  description = "Template ID to clone"
+  type        = number
+}
+
+variable "vm_full_clone" {
+  description = "Whether to create a full clone of the template"
+  type        = bool
+  default     = true
+}
+
+variable "vm_storage_pool" {
+  description = "Storage pool for the VM"
+  type        = string
+  default     = "RaidArray"
+}
+
+variable "vm_storage" {
+  description = "Disk size for the VM (in GB)"
+  type        = number
+  default     = 4
+}
+
+variable "vm_disk_size" {
+  description = "Disk size for the VM (in GB)"
+  type        = number
+  default     = 20
+}
+
+variable "vm_memory" {
+  description = "Memory allocation for the VM (in MB)"
+  type        = number
+  default     = 2048
+}
+
+variable "vm_cores" {
+  description = "Number of CPU cores for the VM"
+  type        = number
+  default     = 2
+}
+
+variable "vm_network_bridge" {
+  description = "Network bridge for the VM"
+  type        = string
+  default     = "vmbr0"
+}
+
+variable "ssh_public_key" {
+  description = "SSH public key for access"
+  type        = string
+}

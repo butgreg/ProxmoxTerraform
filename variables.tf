@@ -1,11 +1,13 @@
 variable "proxmox_ip" {
   description = "IP address of the Proxmox server"
   type        = string
+  default    = "192.168.0.175"
 }
 
 variable "proxmox_user" {
   description = "Proxmox user with API access"
   type        = string
+  default = "terraform@pam!new_token_id"
 }
 
 variable "proxmox_password" {
@@ -16,6 +18,7 @@ variable "proxmox_password" {
 variable "proxmox_node" {
   description = "Name of the proxmox node where the LXC containers will be deployed"
   type        = string
+  default     = "pve"
   
 }
 
